@@ -1,8 +1,11 @@
 const { io } = require("socket.io-client");
 
-const socket = io("http://localhost:5000");
+const socket = io("https://callingapp-aq0p.onrender.com", {
+  transports: ["websocket"],
+  reconnection: true,
+});
 
-const userId = "69ea40c182f27c496188d136"; // raam
+const userId = "69ea80b051be6dfc1851636f"; // raam
 
 socket.on("connect", () => {
   console.log("User2 Connected:", socket.id);
@@ -10,11 +13,18 @@ socket.on("connect", () => {
   socket.emit("register-socket", userId);
 });
 
+socket.on("disconnect", () => {
+  console.log("❌ Disconnected");
+});
+
+socket.on("connect_error", (err) => {
+  console.log("❌ Connection Error:", err.message);
+});
+
 // incoming call
 socket.on("incoming-call", (data) => {
   console.log("📞 Incoming Call:", data);
 
-  // 🔥 auto accept
   socket.emit("accept-call", {
     to: data.from,
     from: userId,
