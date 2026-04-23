@@ -41,9 +41,15 @@ exports.getUsers = async (req, res) => {
   try {
     const { userId } = req.query;
 
-    const users = await User.find({ _id: { $ne: userId } });
+    const users = await User.find({
+      _id: { $ne: userId },
+    }).select("name");
 
-    res.json(users);
+    res.json({
+      success: true,
+      users,
+    });
+
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
