@@ -4,6 +4,13 @@ exports.getMessages = async (req, res) => {
   try {
     const { sender, receiver } = req.query;
 
+    if (req.user._id.toString() !== sender && req.user._id.toString() !== receiver) {
+      return res.status(430).json({
+        success: false,
+        message: "Forbidden: You are not authorized to view these messages"
+      });
+    }
+
     const messages = await Message.find({
       $or: [
         {
