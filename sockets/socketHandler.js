@@ -1,7 +1,7 @@
 
 const User = require("../models/User");
 const { AccessToken } = require("livekit-server-sdk");
-
+const Message = require("../models/Message");
 async function createToken(identity, room) {
   try {
     if (!process.env.LIVEKIT_API_KEY || !process.env.LIVEKIT_API_SECRET) {
@@ -177,5 +177,66 @@ module.exports = (io) => {
         console.log("❌ disconnect error:", err);
       }
     });
+
+    // SEND MESSAGE
+    socket.on("send-message", async ({ sender, receiver, message }) => {
+      try {
+        const newMessage = await Message.create({
+          sender,
+          receiver,
+          message
+        });
+        const receiverUser = await User.findById(receiver);
+        if (receiverUser?.socketId) {
+          io.to(receiverUser.socketId).emit("receive-message", {
+            _id: newMessage._id,
+            sender,
+            receiver,
+            message,
+            createdAt: newMessage.createdAt,
+          });
+        }
+        socket.emit("message-sent", newMessage);
+      } catch (err) {
+        console.log("❌ send-message error:", err);
+      }
+    });
+
+    // TYPING
+    socket.on("typing", async ({ to, from }) => {
+      try {
+        const user = await User.findById(to);
+
+        if (user?.socketId) {
+          io.to(user.socketId).emit("user-typing", {
+            from,
+          });
+        }
+      } catch (err) {
+        console.log("❌ typing error:", err);
+      }
+    });
+
+    // MESSAGE SEEN
+    socket.on("message-seen", async ({ messageId, senderId }) => {
+      try {
+        await Message.findByIdAndUpdate(
+          messageId,
+          { seen: true }
+        );
+
+        const sender = await User.findById(senderId);
+
+        if (sender?.socketId) {
+          io.to(sender.socketId).emit(
+            "message-seen-update",
+            { messageId }
+          );
+        }
+      } catch (err) {
+        console.log("❌ message-seen error:", err);
+      }
+    });
   });
 };
+
