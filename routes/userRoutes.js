@@ -6,6 +6,7 @@ const {
   loginUser,
   getUsers,
 } = require("../controllers/userController");
+const { processAI } = require("../controllers/aiController");
 const { protect } = require("../middleware/authMiddleware");
 
 router.post("/register", registerUser);
@@ -13,5 +14,7 @@ router.post("/login", loginUser);
 
 router.get("/users", protect, getUsers);
 router.get("/messages", protect, getMessages);
+
+router.post("/ai/process", protect, processAI);
 
 module.exports = router;

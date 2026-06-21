@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@google/genai": "^2.9.0",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
@@ -8,6 +9,9 @@
     "livekit-server-sdk": "^2.15.1",
     "mongodb": "^7.2.0",
     "mongoose": "^9.5.0",
+    "multer": "^2.2.0",
+    "openai": "^6.44.0",
+    "pdf-parse": "^2.4.5",
     "socket.io": "^4.8.3",
     "socket.io-client": "^4.8.3"
   }
